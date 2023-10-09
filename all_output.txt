@@ -1,0 +1,116 @@
+Creating a Chrome extension involves several steps and files. The main files we will need are:
+
+- manifest.json: This is the configuration file for the extension. It specifies basic metadata about the extension such as its name, description, version, and permissions it requires.
+- popup.html: This is the HTML file that will be displayed when the user clicks on the extension icon in the Chrome toolbar.
+- popup.js: This is the JavaScript file that will contain the logic for interacting with the Jira API and updating the popup.html.
+- popup.css: This is the CSS file that will style the popup.html.
+- README.md: This is the file that will contain instructions on how to install and use the extension.
+
+Let's start with the manifest.json:
+
+manifest.json
+```
+{
+  "manifest_version": 2,
+  "name": "Jira Issue Reporter",
+  "description": "This extension lists the issues reported by you in Jira",
+  "version": "1.0",
+  "permissions": ["activeTab", "https://*.atlassian.net/rest/api/2/search"],
+  "browser_action": {
+    "default_icon": "icon.png",
+    "default_popup": "popup.html"
+  },
+  "content_security_policy": "script-src 'self' https://ajax.googleapis.com; object-src 'self'"
+}
+```
+
+Next, let's create the popup.html:
+
+popup.html
+```
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" type="text/css" href="popup.css">
+</head>
+<body>
+  <h1>Issues Reported by You</h1>
+  <div id="issueList"></div>
+  <script src="popup.js"></script>
+</body>
+</html>
+```
+
+Now, let's create the popup.js:
+
+popup.js
+```
+document.addEventListener('DOMContentLoaded', function() {
+  var xhr = new XMLHttpRequest();
+  xhr.open("GET", "https://your-domain.atlassian.net/rest/api/2/search?jql=reporter=currentuser()", true);
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState == 4) {
+      var resp = JSON.parse(xhr.responseText);
+      var issueList = document.getElementById('issueList');
+      resp.issues.forEach(function(issue) {
+        var div = document.createElement('div');
+        div.textContent = issue.key + ': ' + issue.fields.summary;
+        issueList.appendChild(div);
+      });
+    }
+  }
+  xhr.send();
+}, false);
+```
+
+Next, let's create the popup.css:
+
+popup.css
+```
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f0f0f0;
+  margin: 0;
+  padding: 0;
+}
+
+h1 {
+  background-color: #4a90d9;
+  color: white;
+  padding: 10px 0;
+  text-align: center;
+  margin: 0;
+}
+
+#issueList {
+  padding: 10px;
+}
+
+#issueList div {
+  border-bottom: 1px solid #ddd;
+  padding: 10px 0;
+}
+```
+
+Finally, let's create the README.md:
+
+README.md
+```
+# Jira Issue Reporter
+
+This is a Chrome extension that lists the issues reported by you in Jira.
+
+## Installation
+
+1. Download or clone this repository.
+2. Open Chrome and navigate to `chrome://extensions`.
+3. Enable Developer mode by ticking the checkbox in the upper-right corner.
+4. Click on the "Load unpacked extension..." button.
+5. Select the directory containing your unpacked extension.
+
+## Usage
+
+Click on the extension icon in the Chrome toolbar to see a list of issues reported by you.
+```
+
+This concludes a fully working implementation.
